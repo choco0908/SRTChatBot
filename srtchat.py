@@ -1,14 +1,18 @@
 #-*- coding: utf-8 -*-
 
-import time
-from datetime import datetime
+#기능별 모듈 구분
+
 import telepot
 from telepot.loop import MessageLoop
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 from telepot.delegate import pave_event_space, per_chat_id, create_open
-import json
+
+import time
+from datetime import datetime
+import random
 import os
 import re
+
 from SRT import SRT
 #from passengers import Adult, Child
 
@@ -40,7 +44,7 @@ def reserve_message(chat_id,trains):
     keyboard =[]
     i = 0
     if len(trains) == 0:
-        keyboard.append([InlineKeyboardButton(text='해당 시간에는 기차가 없습니다.', callback_data='')])
+        keyboard.append([InlineKeyboardButton(text='해당 시간에는 기차가 없습니다.', callback_data=' ')])
     else:
         for train in trains:
             key = []
@@ -49,7 +53,7 @@ def reserve_message(chat_id,trains):
             key.append(InlineKeyboardButton(text=time+' '+seat,callback_data='reserve_'+str(i)))
             keyboard.append(key)
             i = i+1
-    keyboard.append([InlineKeyboardButton(text='예약 종료', callback_data='back')])
+    keyboard.append([InlineKeyboardButton(text='돌아가기', callback_data='back')])
     keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard)
     bot.sendMessage(chat_id,'조회 완료', reply_markup=keyboard)
 
@@ -58,14 +62,14 @@ def refer_message(chat_id,trains):
     keyboard =[]
     i = 0
     if len(trains) == 0:
-        keyboard.append([InlineKeyboardButton(text='예약된 기차가 없습니다.', callback_data='')])
+        keyboard.append([InlineKeyboardButton(text='예약된 기차가 없습니다.', callback_data=' ')])
     else:
         for train in trains:
             key = []
             key.append(InlineKeyboardButton(text=str(train),callback_data='refer_'+str(i)))
             keyboard.append(key)
             i = i+1
-    keyboard.append([InlineKeyboardButton(text='조회 종료', callback_data='back')])
+    keyboard.append([InlineKeyboardButton(text='돌아가기', callback_data='back')])
     keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard)
     bot.sendMessage(chat_id,'조회 완료', reply_markup=keyboard)
 
@@ -73,14 +77,14 @@ def cancel_message(chat_id,trains):
     keyboard =[]
     i = 0
     if len(trains) == 0:
-        keyboard.append([InlineKeyboardButton(text='예약된 기차가 없습니다.', callback_data='')])
+        keyboard.append([InlineKeyboardButton(text='예약된 기차가 없습니다.', callback_data=' ')])
     else:
         for train in trains:
             key = []
             key.append(InlineKeyboardButton(text=str(train),callback_data='cancel_'+str(i)))
             keyboard.append(key)
             i = i+1
-    keyboard.append([InlineKeyboardButton(text='취소 종료', callback_data='back')])
+    keyboard.append([InlineKeyboardButton(text='돌아가기', callback_data='back')])
     keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard)
     bot.sendMessage(chat_id,'조회 완료', reply_markup=keyboard)
 
@@ -156,24 +160,36 @@ def reserve_query(msg):
     query_id, from_id, query_data = telepot.glance(msg, flavor='callback_query')
     print('Callback Query:', query_id, from_id, query_data)
     if query_data == 'reserve':
-        bot.sendMessage(from_id,'계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
+        try :
+            srt = users.get(from_id).get('srt')
+            bot.sendMessage(from_id,'조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20190913/144000')
+        except Exception as e:
+            bot.sendMessage(from_id,'로그인 정보가 없습니다.\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
     elif 'reserve_' in query_data:
         print(query_data+'예약진행')
         num = int(query_data.split('_')[1])
-        try:
+        try :
             srt = users.get(from_id).get('srt')
-            train = users.get(from_id).get('trains')[num]        
-            #if 'passenger' in users.get(from_id):
-            #    passenger = users.get(from_id).get('passenger')
-            #    srt.reserve(train,passengers=passenger)
-            #else:
-            
-            reservation = srt.reserve(train)
-            bot.sendMessage(from_id,str(reservation)+'예약완료')
-            bot.sendMessage(from_id,startMsg, reply_markup=startKeyboard)
+            train = users.get(from_id).get('trains')[num]
+            bot.sendMessage(from_id,str(train)+'예약 중')  
+            while True:
+                try:
+                            
+                    #if 'passenger' in users.get(from_id):
+                    #    passenger = users.get(from_id).get('passenger')
+                    #    srt.reserve(train,passengers=passenger)
+                    #else:
+                    
+                    reservation = srt.reserve(train)
+                    bot.sendMessage(from_id,str(reservation)+'예약완료')
+                    bot.sendMessage(from_id,startMsg, reply_markup=startKeyboard)
+                    break
+                except Exception as e:
+                    print(e)
+                    #bot.sendMessage(from_id,'예약 실패\n약 1초 후 재시도 합니다.')
+                    time.sleep(random.random()+0.5)
         except Exception as e:
-            print(e)
-            bot.sendMessage(from_id,'예약 실패')
+            bot.sendMessage(from_id,'로그인 정보가 없습니다.\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
     elif query_data == 'refers':
         try:
             srt = users.get(from_id).get('srt')
@@ -197,7 +213,7 @@ def reserve_query(msg):
             srt = users.get(from_id).get('srt')
             train = srt.get_reservations()[num]
             reservation = srt.cancel(train)
-            bot.sendMessage(from_id,str(train)+'취소완료')
+            bot.sendMessage(from_id,str(train)+'\n취소완료')
             bot.sendMessage(from_id,startMsg, reply_markup=startKeyboard)
         except Exception as e:
             print(e)
