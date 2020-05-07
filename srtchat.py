@@ -21,7 +21,7 @@ time_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[~][\u3131-\u3163\uac00
 seat_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[\s][\u3131-\u3163\uac00-\ud7a3]+")
 #email_pattern = re.compile(r"[^@]+@[^@]+\.[^@]+")
 #number_pattern = re.compile(r"(\d{3})-(\d{3,4})-(\d{4})")
-startMsg = "아직은 기능 개발중입니다.\n지금은 일반실만 예약가능합니다.\n예약을 진행하겠습니다."
+startMsg = "기능 개발중입니다.\n봇 관련 문의는 choco0908로 연락바랍니다.\n지금은 일반실만 예약가능합니다.\n예약을 진행하겠습니다."
 startKeyboard = InlineKeyboardMarkup(inline_keyboard=[
                    [InlineKeyboardButton(text='1. 예약', callback_data='reserve')],
                    [InlineKeyboardButton(text='2. 조회', callback_data='refers')],
@@ -54,7 +54,7 @@ def reserve_message(chat_id,trains):
     bot.sendMessage(chat_id,'조회 완료', reply_markup=keyboard)
 
 def refer_message(chat_id,trains):
-    print(trains)
+    #print(trains)
     keyboard =[]
     i = 0
     if len(trains) == 0:
@@ -89,17 +89,17 @@ def handle_message(msg):
     global users
     content_type, chat_type, chat_id = telepot.glance(msg)
     print(datetime.now().isoformat(),'    Received Query : ', content_type, chat_type, chat_id)
-    print(msg)
+    #print(msg)
     if content_type == 'text':
         if re.match(login_pattern,msg['text']):
             cred = msg['text'].split('/')
             user_id = cred[0]
             user_pwd = cred[1]
             try:
-                srt = SRT(user_id,user_pwd,verbose=True)
+                srt = SRT(user_id,user_pwd)
                 users[chat_id] = {}
                 users[chat_id]['srt'] = srt
-                print(chat_id,' User logged in')
+                #print(chat_id,' User logged in')
                 bot.sendMessage(chat_id,'{} 로그인 완료'.format(user_id))
                 bot.sendMessage(chat_id,'조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20190913/144000')
                 #bot.sendMessage(chat_id,'인원수를 입력하세요.\n입력이 없으면 어른1명으로 예약됩니다.\nex)3/1')
