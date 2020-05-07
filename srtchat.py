@@ -17,7 +17,6 @@ from SRT import SRT
 #from passengers import Adult, Child
 
 users = {}
-
 login_pattern = "[a-zA-Z0-9]+[/].+"
 reserve_pattern = "[\u3131-\u3163\uac00-\ud7a3]+[/][\u3131-\u3163\uac00-\ud7a3]+[/][0-9]+[/][0-9]+"
 person_pattern = "[0-5]+[/]+[0-5]"
@@ -37,7 +36,6 @@ def getToken():
     f = open("telebot")
     token = f.readline().strip()
     f.close()
-    
     return token
 
 def reserve_message(chat_id,trains):
@@ -88,7 +86,6 @@ def cancel_message(chat_id,trains):
     keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard)
     bot.sendMessage(chat_id,'조회 완료', reply_markup=keyboard)
 
-
 def handle_message(msg):
     global users
     content_type, chat_type, chat_id = telepot.glance(msg)
@@ -129,6 +126,7 @@ def handle_message(msg):
                 bot.sendMessage(chat_id,'로그인 정보가 없습니다\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
         else:
             bot.sendMessage(chat_id,startMsg, reply_markup=startKeyboard)
+
         '''
         elif re.match(person_pattern,msg['text']):
             if chat_id in users:
@@ -251,7 +249,6 @@ if __name__ == '__main__':
     
     MessageLoop(bot, {'chat': handle_message,'callback_query': reserve_query}).run_as_thread()
     print('[+] ---------- Start Listening ----------')
-
 
     while True:
         time.sleep(10)
