@@ -17,13 +17,14 @@ from SRT import SRT
 #from passengers import Adult, Child
 
 users = {}
-login_pattern = "[a-zA-Z0-9]+[/].+"
-reserve_pattern = "[\u3131-\u3163\uac00-\ud7a3]+[/][\u3131-\u3163\uac00-\ud7a3]+[/][0-9]+[/][0-9]+"
-person_pattern = "[0-5]+[/]+[0-5]"
+
+login_pattern = re.compile(r"[a-zA-Z0-9-.@]+[/].+")
+reserve_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[/][\u3131-\u3163\uac00-\ud7a3]+[/]\d{8}[/]\d{6}")
+person_pattern = re.compile(r"[0-5]+[/]+[0-5]")
 time_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[~][\u3131-\u3163\uac00-\ud7a3]+[(][0-9:~]+[)]")
+refer_pattern = re.compile(r"\d{2}.+[\u3131-\u3163\uac00-\ud7a3]+[~][\u3131-\u3163\uac00-\ud7a3]+[(][0-9:~]+[)].+[(]\d[\uc11d][)]")
 seat_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[\s][\u3131-\u3163\uac00-\ud7a3]+")
-#email_pattern = re.compile(r"[^@]+@[^@]+\.[^@]+")
-#number_pattern = re.compile(r"(\d{3})-(\d{3,4})-(\d{4})")
+
 startMsg = "기능 개발중입니다.\n봇 관련 문의는 choco0908로 연락바랍니다.\n지금은 일반실만 예약가능합니다.\n예약을 진행하겠습니다."
 startKeyboard = InlineKeyboardMarkup(inline_keyboard=[
                    [InlineKeyboardButton(text='1. 예약', callback_data='reserve')],
@@ -53,10 +54,9 @@ def reserve_message(chat_id,trains):
             i = i+1
     keyboard.append([InlineKeyboardButton(text='돌아가기', callback_data='back')])
     keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard)
-    bot.sendMessage(chat_id,'조회 완료', reply_markup=keyboard)
+    bot.sendMessage(chat_id,'열차 검색 완료.\n시간표 선택시 열차가 예약됩니다.', reply_markup=keyboard)
 
 def refer_message(chat_id,trains):
-    #print(trains)
     keyboard =[]
     i = 0
     if len(trains) == 0:
@@ -64,12 +64,13 @@ def refer_message(chat_id,trains):
     else:
         for train in trains:
             key = []
-            key.append(InlineKeyboardButton(text=str(train),callback_data='refer_'+str(i)))
+            time = refer_pattern.findall(str(train))[0]
+            key.append(InlineKeyboardButton(text=time,callback_data='refer_'+str(i)))
             keyboard.append(key)
             i = i+1
     keyboard.append([InlineKeyboardButton(text='돌아가기', callback_data='back')])
     keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard)
-    bot.sendMessage(chat_id,'조회 완료', reply_markup=keyboard)
+    bot.sendMessage(chat_id,'조회 할 열차표를 선택하세요.', reply_markup=keyboard)
 
 def cancel_message(chat_id,trains):
     keyboard =[]
@@ -79,12 +80,13 @@ def cancel_message(chat_id,trains):
     else:
         for train in trains:
             key = []
-            key.append(InlineKeyboardButton(text=str(train),callback_data='cancel_'+str(i)))
+            time = refer_pattern.findall(str(train))[0]
+            key.append(InlineKeyboardButton(text=time,callback_data='cancel_'+str(i)))
             keyboard.append(key)
             i = i+1
     keyboard.append([InlineKeyboardButton(text='돌아가기', callback_data='back')])
     keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard)
-    bot.sendMessage(chat_id,'조회 완료', reply_markup=keyboard)
+    bot.sendMessage(chat_id,'취소 할 열차표를 선택하세요.', reply_markup=keyboard)
 
 def handle_message(msg):
     global users
@@ -92,7 +94,7 @@ def handle_message(msg):
     print(datetime.now().isoformat(),'    Received Query : ', content_type, chat_type, chat_id)
     #print(msg)
     if content_type == 'text':
-        if re.match(login_pattern,msg['text']):
+        if login_pattern.match(msg['text']):
             cred = msg['text'].split('/')
             user_id = cred[0]
             user_pwd = cred[1]
@@ -100,14 +102,13 @@ def handle_message(msg):
                 srt = SRT(user_id,user_pwd)
                 users[chat_id] = {}
                 users[chat_id]['srt'] = srt
-                #print(chat_id,' User logged in')
                 bot.sendMessage(chat_id,'{} 로그인 완료'.format(user_id))
                 bot.sendMessage(chat_id,'조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20190913/144000')
                 #bot.sendMessage(chat_id,'인원수를 입력하세요.\n입력이 없으면 어른1명으로 예약됩니다.\nex)3/1')
             except Exception as e:
                 print(e)
                 bot.sendMessage(chat_id,'로그인 실패\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
-        elif re.match(reserve_pattern,msg['text']):
+        elif reserve_pattern.match(msg['text']):
             if chat_id in users:
                 srt = users.get(chat_id).get('srt')
                 infos = msg['text'].split('/')
@@ -128,7 +129,7 @@ def handle_message(msg):
             bot.sendMessage(chat_id,startMsg, reply_markup=startKeyboard)
 
         '''
-        elif re.match(person_pattern,msg['text']):
+        elif person_pattern.match(msg['text']):
             if chat_id in users:
                 srt = users.get(chat_id).get('srt')
                 persons = msg['text'].split('/')
@@ -189,21 +190,27 @@ def reserve_query(msg):
         except Exception as e:
             bot.sendMessage(from_id,'로그인 정보가 없습니다.\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
     elif query_data == 'refers':
-        try:
+        try :
             srt = users.get(from_id).get('srt')
-            trains = srt.get_reservations()
-            refer_message(from_id,trains)
+            try:
+                trains = srt.get_reservations()
+                refer_message(from_id,trains)
+            except Exception as e:
+                print(e)
+                bot.sendMessage(from_id,'조회 실패')
         except Exception as e:
-            print(e)
-            bot.sendMessage(from_id,'조회 실패')
+            bot.sendMessage(from_id,'로그인 정보가 없습니다.\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
     elif query_data == 'cancel':
-        try:
+        try :
             srt = users.get(from_id).get('srt')
-            trains = srt.get_reservations()
-            cancel_message(from_id,trains)
+            try:
+                trains = srt.get_reservations()
+                cancel_message(from_id,trains)
+            except Exception as e:
+                print(e)
+                bot.sendMessage(from_id,'조회 실패')
         except Exception as e:
-            print(e)
-            bot.sendMessage(from_id,'조회 실패')
+            bot.sendMessage(from_id,'로그인 정보가 없습니다.\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
     elif 'cancel_' in query_data:
         print(query_data+'취소진행')
         num = int(query_data.split('_')[1])
@@ -223,7 +230,7 @@ def reserve_query(msg):
         if from_id in users:
             del users[from_id]
         bot.sendMessage(from_id,startMsg, reply_markup=startKeyboard)
-        os._exit(1)
+        #os._exit(1)
         
 
 class MessageCounter(telepot.helper.ChatHandler):
@@ -232,7 +239,6 @@ class MessageCounter(telepot.helper.ChatHandler):
         self._count = 0
     
     def open(self, initial_msg, seed):
-        self.sender.sendMessage('Guess my number')
         return True  # prevent on_message() from being called on the initial message
     
     def on_chat_message(self, msg):
