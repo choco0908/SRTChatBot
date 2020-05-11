@@ -14,7 +14,7 @@ import os
 import re
 
 from SRT import SRT
-#from passengers import Adult, Child
+from SRT.passenger import Passenger, Adult, Child
 
 users = {}
 
@@ -25,7 +25,8 @@ time_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[~][\u3131-\u3163\uac00
 refer_pattern = re.compile(r"\d{2}.+[\u3131-\u3163\uac00-\ud7a3]+[~][\u3131-\u3163\uac00-\ud7a3]+[(][0-9:~]+[)].+[(]\d[\uc11d][)]")
 seat_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[\s][\u3131-\u3163\uac00-\ud7a3]+")
 
-startMsg = "기능 개발중입니다.\n봇 관련 문의는 choco0908로 연락바랍니다.\n지금은 일반실만 예약가능합니다.\n예약을 진행하겠습니다."
+startMsg = "기능 개발중입니다.\n봇 관련 문의는 [@chocodotz]로 연락바랍니다.\n지금은 일반실만 예약가능합니다.\n예약을 진행하겠습니다."
+commonMsg = "원하는 기능을 선택하세요."
 startKeyboard = InlineKeyboardMarkup(inline_keyboard=[
                    [InlineKeyboardButton(text='1. 예약', callback_data='reserve')],
                    [InlineKeyboardButton(text='2. 조회', callback_data='refers')],
@@ -181,7 +182,7 @@ def reserve_query(msg):
                     
                     reservation = srt.reserve(train)
                     bot.sendMessage(from_id,str(reservation)+'예약완료')
-                    bot.sendMessage(from_id,startMsg, reply_markup=startKeyboard)
+                    bot.sendMessage(from_id,commonMsg, reply_markup=startKeyboard)
                     break
                 except Exception as e:
                     print(e)
@@ -219,12 +220,12 @@ def reserve_query(msg):
             train = srt.get_reservations()[num]
             reservation = srt.cancel(train)
             bot.sendMessage(from_id,str(train)+'\n취소완료')
-            bot.sendMessage(from_id,startMsg, reply_markup=startKeyboard)
+            bot.sendMessage(from_id,commonMsg, reply_markup=startKeyboard)
         except Exception as e:
             print(e)
             bot.sendMessage(from_id,'예약 실패')
     elif query_data == 'back':
-        bot.sendMessage(from_id,startMsg, reply_markup=startKeyboard)
+        bot.sendMessage(from_id,commonMsg, reply_markup=startKeyboard)
     elif query_data == 'exit':
         bot.sendMessage(from_id,'종료')
         if from_id in users:
