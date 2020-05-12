@@ -20,12 +20,16 @@ users = {}
 
 login_pattern = re.compile(r"[a-zA-Z0-9-.@]+[/].+")
 reserve_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[/][\u3131-\u3163\uac00-\ud7a3]+[/]\d{8}[/]\d{6}")
-person_pattern = re.compile(r"[0-5]+[/]+[0-5]")
+person_pattern = re.compile(r"[\uc5b4][\ub978][0-5]+[/]+[\uc544][\uc774[0-5]")
+number_pattern = re.compile(r"\d{1}")
 time_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[~][\u3131-\u3163\uac00-\ud7a3]+[(][0-9:~]+[)]")
 refer_pattern = re.compile(r"\d{2}.+[\u3131-\u3163\uac00-\ud7a3]+[~][\u3131-\u3163\uac00-\ud7a3]+[(][0-9:~]+[)].+[(]\d[\uc11d][)]")
 seat_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[\s][\u3131-\u3163\uac00-\ud7a3]+")
 
-startMsg = "기능 개발중입니다.\n봇 관련 문의는 [@chocodotz]로 연락바랍니다.\n지금은 일반실만 예약가능합니다.\n예약을 진행하겠습니다."
+startMsg = "기능 개발중입니다.\n봇 관련 문의는 [@chocodotz]로 연락바랍니다.\n\
+모든 소스코드는 (https://github.com/choco0908/SRTChatBot.git)에 \
+있으며 어떤 개인정보도 서버에 남기지 않습니다.\n\
+지금은 일반실만 예약가능합니다.\n예약을 진행하겠습니다."
 commonMsg = "원하는 기능을 선택하세요."
 startKeyboard = InlineKeyboardMarkup(inline_keyboard=[
                    [InlineKeyboardButton(text='1. 예약', callback_data='reserve')],
@@ -105,7 +109,7 @@ def handle_message(msg):
                 users[chat_id]['srt'] = srt
                 bot.sendMessage(chat_id,'{} 로그인 완료'.format(user_id))
                 bot.sendMessage(chat_id,'조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20190913/144000')
-                #bot.sendMessage(chat_id,'인원수를 입력하세요.\n입력이 없으면 어른1명으로 예약됩니다.\nex)3/1')
+                bot.sendMessage(chat_id,'인원수를 입력하세요.\n입력이 없으면 어른1명으로 예약됩니다.\nex)어른3/아이1')
             except Exception as e:
                 print(e)
                 bot.sendMessage(chat_id,'로그인 실패\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
@@ -126,18 +130,14 @@ def handle_message(msg):
                     bot.sendMessage(chat_id,'조회 실패\n조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20190913/144000')
             else:
                 bot.sendMessage(chat_id,'로그인 정보가 없습니다\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
-        else:
-            bot.sendMessage(chat_id,startMsg, reply_markup=startKeyboard)
-
-        '''
         elif person_pattern.match(msg['text']):
             if chat_id in users:
                 srt = users.get(chat_id).get('srt')
-                persons = msg['text'].split('/')
+                persons = number_pattern.findall(msg['text'])
                 adult = int(persons[0])
                 child = int(persons[1])
                 if (adult+child) > 9 or (adult+child) == 0 :
-                    bot.sendMessage(chat_id,'인원수는 최소 1명 최대 9명까지 가능합니다.\n입력이 없으면 어른1명으로 예약됩니다.')
+                    bot.sendMessage(chat_id,'인원수를 입력하세요.\n입력이 없으면 어른1명으로 예약됩니다.\nex)어른3/아이1')
                     return
                 passenger = []
                 for i in range(adult):
@@ -148,12 +148,11 @@ def handle_message(msg):
                     users[chat_id]['passenger'] = passenger
                 except Exception as e:
                     print(e)
-                    bot.sendMessage(chat_id,'인원수는 최소 1명 최대 9명까지 가능합니다.\n입력이 없으면 어른1명으로 예약됩니다.')
+                    bot.sendMessage(chat_id,'인원수를 입력하세요.\n입력이 없으면 어른1명으로 예약됩니다.\nex)어른3/아이1')
             else:
                 bot.sendMessage(chat_id,'로그인 정보가 없습니다\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
         else:
             bot.sendMessage(chat_id,startMsg, reply_markup=startKeyboard)
-        '''
 
 def reserve_query(msg): 
     global users
@@ -171,7 +170,7 @@ def reserve_query(msg):
         try :
             srt = users.get(from_id).get('srt')
             train = users.get(from_id).get('trains')[num]
-            bot.sendMessage(from_id,str(train)+'예약 중')  
+            bot.sendMessage(from_id,str(train)+'\n예약 중')  
             while True:
                 try:
                             
@@ -181,7 +180,7 @@ def reserve_query(msg):
                     #else:
                     
                     reservation = srt.reserve(train)
-                    bot.sendMessage(from_id,str(reservation)+'예약완료')
+                    bot.sendMessage(from_id,str(reservation)+'\n예약완료')
                     bot.sendMessage(from_id,commonMsg, reply_markup=startKeyboard)
                     break
                 except Exception as e:
