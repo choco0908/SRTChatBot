@@ -115,7 +115,10 @@ def handle_message(msg):
                 bot.sendMessage(chat_id,'로그인 실패\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
         elif reserve_pattern.match(msg['text']):
             if chat_id in users:
-                srt = users.get(chat_id).get('srt')
+                try:
+                    srt = users.get(chat_id).get('srt')
+                except Exception as e:
+                    bot.sendMessage(chat_id,'로그인 정보가 없습니다\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
                 infos = msg['text'].split('/')
                 dep = infos[0]
                 arr = infos[1]
@@ -132,12 +135,15 @@ def handle_message(msg):
                 bot.sendMessage(chat_id,'로그인 정보가 없습니다\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
         elif person_pattern.match(msg['text']):
             if chat_id in users:
-                srt = users.get(chat_id).get('srt')
+                try:
+                    srt = users.get(chat_id).get('srt')
+                except Exception as e:
+                    bot.sendMessage(chat_id,'로그인 정보가 없습니다\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
                 persons = number_pattern.findall(msg['text'])
                 adult = int(persons[0])
                 child = int(persons[1])
                 if (adult+child) > 9 or (adult+child) == 0 :
-                    bot.sendMessage(chat_id,'인원수를 입력하세요.\n입력이 없으면 어른1명으로 예약됩니다.\nex)어른3/아이1')
+                    bot.sendMessage(chat_id,'예약 가능인원은 총 9 명까지 입니다.\n다시 입력하세요.\nex)어른3/아이1')
                     return
                 passenger = []
                 for i in range(adult):
@@ -148,7 +154,7 @@ def handle_message(msg):
                     users[chat_id]['passenger'] = passenger
                 except Exception as e:
                     print(e)
-                    bot.sendMessage(chat_id,'인원수를 입력하세요.\n입력이 없으면 어른1명으로 예약됩니다.\nex)어른3/아이1')
+                    bot.sendMessage(chat_id,'인원 입력 실패.\n다시 입력하세요.\nex)어른3/아이1')
             else:
                 bot.sendMessage(chat_id,'로그인 정보가 없습니다\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
         else:
@@ -172,14 +178,12 @@ def reserve_query(msg):
             train = users.get(from_id).get('trains')[num]
             bot.sendMessage(from_id,str(train)+'\n예약 중')  
             while True:
-                try:
-                            
-                    #if 'passenger' in users.get(from_id):
-                    #    passenger = users.get(from_id).get('passenger')
-                    #    srt.reserve(train,passengers=passenger)
-                    #else:
-                    
-                    reservation = srt.reserve(train)
+                try:    
+                    if 'passenger' in users.get(from_id):
+                        passenger = users.get(from_id).get('passenger')
+                        reservation = srt.reserve(train,passengers=passenger)
+                    else:
+                        reservation = srt.reserve(train)
                     bot.sendMessage(from_id,str(reservation)+'\n예약완료')
                     bot.sendMessage(from_id,commonMsg, reply_markup=startKeyboard)
                     break
