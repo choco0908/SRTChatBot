@@ -29,7 +29,7 @@ seat_pattern = re.compile(r"[\u3131-\u3163\uac00-\ud7a3]+[\s][\u3131-\u3163\uac0
 startMsg = "기능 개발중입니다.\n봇 관련 문의는 [@chocodotz]로 연락바랍니다.\n\
 모든 소스코드는 (https://github.com/choco0908/SRTChatBot.git)에 \
 있으며 어떤 개인정보도 서버에 남기지 않습니다.\n\
-지금은 일반실만 예약가능합니다.\n예약을 진행하겠습니다."
+지금은 일반실만 예약가능하며 자리 선택은 불가능합니다.\n예약을 진행하겠습니다."
 commonMsg = "원하는 기능을 선택하세요."
 startKeyboard = InlineKeyboardMarkup(inline_keyboard=[
                    [InlineKeyboardButton(text='1. 예약', callback_data='reserve')],
@@ -152,6 +152,7 @@ def handle_message(msg):
                     passenger.append(Child())
                 try:
                     users[chat_id]['passenger'] = passenger
+                    bot.sendMessage(chat_id,msg['text']+' 인원 입력')
                 except Exception as e:
                     print(e)
                     bot.sendMessage(chat_id,'인원 입력 실패.\n다시 입력하세요.\nex)어른3/아이1')
