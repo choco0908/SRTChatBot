@@ -108,7 +108,7 @@ def handle_message(msg):
                 users[chat_id] = {}
                 users[chat_id]['srt'] = srt
                 bot.sendMessage(chat_id,'{} 로그인 완료'.format(user_id))
-                bot.sendMessage(chat_id,'조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20190913/144000')
+                bot.sendMessage(chat_id,'조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20200913/144000')
                 bot.sendMessage(chat_id,'인원수를 입력하세요.\n입력이 없으면 어른1명으로 예약됩니다.\nex)어른3/아이1')
             except Exception as e:
                 print(e)
@@ -130,7 +130,7 @@ def handle_message(msg):
                     reserve_message(chat_id,trains)
                 except Exception as e:
                     print(e)
-                    bot.sendMessage(chat_id,'조회 실패\n조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20190913/144000')
+                    bot.sendMessage(chat_id,'조회 실패\n조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20200913/144000')
             else:
                 bot.sendMessage(chat_id,'로그인 정보가 없습니다\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
         elif person_pattern.match(msg['text']):
@@ -152,7 +152,7 @@ def handle_message(msg):
                     passenger.append(Child())
                 try:
                     users[chat_id]['passenger'] = passenger
-                    bot.sendMessage(chat_id,msg['text']+' 인원 입력')
+                    bot.sendMessage(chat_id,msg['text']+' 인원 입력 완료')
                 except Exception as e:
                     print(e)
                     bot.sendMessage(chat_id,'인원 입력 실패.\n다시 입력하세요.\nex)어른3/아이1')
@@ -168,7 +168,7 @@ def reserve_query(msg):
     if query_data == 'reserve':
         try :
             srt = users.get(from_id).get('srt')
-            bot.sendMessage(from_id,'조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20190913/144000')
+            bot.sendMessage(from_id,'조회할 기차 정보를 입력하세요(출발지/도착지/날짜/시간)\nex)수서/부산/20200913/144000')
         except Exception as e:
             bot.sendMessage(from_id,'로그인 정보가 없습니다.\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
     elif 'reserve_' in query_data:
@@ -189,8 +189,12 @@ def reserve_query(msg):
                     bot.sendMessage(from_id,commonMsg, reply_markup=startKeyboard)
                     break
                 except Exception as e:
+                    e = str(e)
                     print(e)
-                    #bot.sendMessage(from_id,'예약 실패\n약 1초 후 재시도 합니다.')
+                    if '요청하신 승차권과 동일한 시간대' in e or '열차별 예약가능 매수를 초과' in e :
+                        bot.sendMessage(from_id,str(reservation)+'\n예약완료')
+                        break
+                    bot.sendMessage(from_id,'예약 실패\n약 1초 후 재시도 합니다.')
                     time.sleep(random.random()+0.5)
         except Exception as e:
             bot.sendMessage(from_id,'로그인 정보가 없습니다.\n계정정보를 입력하세요(USER_ID/USER_PW)\nex)id_1234/pw_1234')
