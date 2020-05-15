@@ -21,19 +21,18 @@ Screenshots
 
 2. 로그인 (Login)
 <div>
-<img width="300" src="https://user-images.githubusercontent.com/14960947/82003468-65308f80-969b-11ea-9a30-37056f4a02b2.jpeg">
-<img width="300" src="https://user-images.githubusercontent.com/14960947/82002600-26013f00-9699-11ea-8c45-c35e8d18efeb.png">
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82006764-80070200-96a3-11ea-8744-9c19fff8f4a0.jpeg">
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82006518-f5260780-96a2-11ea-897a-a0d65b123882.png">
 </div>
                  
 3. 예약 (Reserve)   
-<img width="300" src="https://user-images.githubusercontent.com/14960947/82002602-27326c00-9699-11ea-92b5-b2affaeef6c2.png">
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82006523-f9522500-96a2-11ea-9df2-5c1b36b05f1b.png">
 
 4. 예약 조회 (Refer)
-<img width="300" src="https://user-images.githubusercontent.com/14960947/82002604-27cb0280-9699-11ea-946b-c1a8052a6f62.png">
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82006525-fa835200-96a2-11ea-8c45-1ee50289ebb1.png">
 
 5. 예약 취소 (Cancel)
-<img width="300" src="https://user-images.githubusercontent.com/14960947/82002606-28639900-9699-11ea-9caa-c89943d7bfbf.png">
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82006526-fb1be880-96a2-11ea-9abc-224952dabab9.png">
 
 6. 봇 종료 (Exit)
-<img width="300" src="https://user-images.githubusercontent.com/14960947/82002607-28639900-9699-11ea-84ea-8e0893818015.png">
-
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82006528-fbb47f00-96a2-11ea-85ce-a5475299721e.png">
