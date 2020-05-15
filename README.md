@@ -12,3 +12,28 @@ Telegram > SRTChatBot 검색
 2. 조회
 3. 취소
 4. 종료
+
+Screenshots
+-----------
+
+1. 봇 시작 (Start Bot)
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82002608-28fc2f80-9699-11ea-8eb2-ac451621d18f.png">
+
+2. 로그인 (Login)
+<div>
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82003468-65308f80-969b-11ea-9a30-37056f4a02b2.jpeg">
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82002600-26013f00-9699-11ea-8c45-c35e8d18efeb.png">
+</div>
+                 
+3. 예약 (Reserve)   
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82002602-27326c00-9699-11ea-92b5-b2affaeef6c2.png">
+
+4. 예약 조회 (Refer)
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82002604-27cb0280-9699-11ea-946b-c1a8052a6f62.png">
+
+5. 예약 취소 (Cancel)
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82002606-28639900-9699-11ea-9caa-c89943d7bfbf.png">
+
+6. 봇 종료 (Exit)
+<img width="300" src="https://user-images.githubusercontent.com/14960947/82002607-28639900-9699-11ea-84ea-8e0893818015.png">
+
